@@ -1,0 +1,221 @@
+---
+title: "README"
+output: 
+  github_document:
+    pandoc_args: ["--wrap=none"]
+always_allow_html: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Load dadta
+
+```{r}
+# Define the Kaggle dataset URL
+url <- "https://www.kaggle.com/api/v1/datasets/download/fratzcan/usa-house-prices"
+
+# Define the destination file path
+destfile <- "~/Downloads/usa-house-prices.zip"
+
+# Download the file
+download.file(url, destfile, mode = "wb")
+
+# Print a message indicating completion
+cat("Download complete! File saved to:", destfile, "\n")
+
+# Load necessary libraries
+library(tidyverse)
+library(naniar)      # For missing data visualization
+library(ggcorrplot)  # For correlation plots
+library(gridExtra)   # For arranging multiple plots
+library(scales)      # For formatting labels
+
+# Read the dataset
+# Assuming the CSV file is in the working directory
+housing_data <- read.csv("USA Housing Dataset.csv")
+
+# 1. Basic Structure and Overview
+# ----------------------------------
+# Display dataset structure
+str(housing_data)
+
+# Display first few rows
+head(housing_data)
+
+# Basic dimensions
+cat("Dataset dimensions:", dim(housing_data)[1], "rows and", dim(housing_data)[2], "columns\n")
+
+```
+
+```{r}
+# 2. Summary Statistics
+# ---------------------
+# Numerical variable summaries
+numerical_summary <- housing_data %>%
+  select(price, bedrooms, bathrooms, sqft_living, sqft_lot, floors, 
+         waterfront, view, condition, sqft_above, sqft_basement, 
+         yr_built, yr_renovated) %>%
+  summary()
+
+print(numerical_summary)
+
+# Calculate standard deviation, range, etc. for numerical variables
+detailed_stats <- housing_data %>%
+  select(price, bedrooms, bathrooms, sqft_living, sqft_lot, floors, 
+         waterfront, view, condition, sqft_above, sqft_basement, 
+         yr_built, yr_renovated) %>%
+  summarise(across(everything(), 
+                  list(
+                    mean = ~mean(., na.rm = TRUE),
+                    median = ~median(., na.rm = TRUE),
+                    min = ~min(., na.rm = TRUE),
+                    max = ~max(., na.rm = TRUE),
+                    range = ~max(., na.rm = TRUE) - min(., na.rm = TRUE),
+                    sd = ~sd(., na.rm = TRUE),
+                    n_missing = ~sum(is.na(.))
+                  )))
+
+print(detailed_stats)
+```
+
+```{r}
+# 3. Missing Value Analysis
+# -------------------------
+# Check for missing values
+missing_values <- colSums(is.na(housing_data))
+cat("Missing values per column:\n")
+print(missing_values)
+
+# Visualize missing data pattern (if there are missing values)
+if(sum(missing_values) > 0) {
+  miss_plot <- gg_miss_var(housing_data) + 
+    labs(title = "Missing Values by Variable")
+  print(miss_plot)
+}
+
+```
+
+```{r}
+# 4. Calculate price per square foot
+# ---------------------------------
+housing_data$price_per_sqft <- housing_data$price / housing_data$sqft_living
+
+# Get the top 10 cities by count
+top_cities <- names(sort(table(housing_data$city), decreasing = TRUE)[1:10])
+
+# Filter for those cities
+city_data <- housing_data %>%
+  filter(city %in% top_cities)
+
+# Box plot of price per square foot by city
+p11 <- ggplot(city_data, aes(x = reorder(city, price_per_sqft, FUN = median), y = price_per_sqft)) +
+  geom_boxplot(fill = "lightblue") +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  labs(title = "Price per Square Foot by City (Top 10 Cities)", 
+       x = "City", 
+       y = "Price per Square Foot") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(p11)
+```
+
+```{r}
+# 5. Correlation Analysis
+# ----------------------
+# Create correlation matrix for numerical variables
+corr_vars <- housing_data %>%
+  select(price, bedrooms, bathrooms, sqft_living, sqft_lot, floors, 
+         waterfront, view, condition, sqft_above, sqft_basement, yr_built)
+
+correlation_matrix <- cor(corr_vars, use = "complete.obs")
+print(correlation_matrix)
+
+# Visualize correlation matrix
+p12 <- ggcorrplot(correlation_matrix, 
+           hc.order = TRUE, 
+           type = "lower", 
+           lab = TRUE, 
+           lab_size = 3,
+           colors = c("#6D9EC1", "white", "#E46726")) +
+  labs(title = "Correlation Matrix of Housing Features")
+
+print(p12)
+```
+
+```{r}
+# 6. Outlier Detection
+# ------------------
+# Calculate z-scores for price
+housing_data$price_zscore <- (housing_data$price - mean(housing_data$price)) / sd(housing_data$price)
+
+# Identify outliers (z-score > 3 or < -3)
+price_outliers <- housing_data %>%
+  filter(abs(price_zscore) > 3) %>%
+  select(price, bedrooms, bathrooms, sqft_living, city, price_zscore) %>%
+  arrange(desc(price_zscore))
+
+cat("Number of price outliers:", nrow(price_outliers), "\n")
+print(head(price_outliers, 10))
+
+# 7. Analyze bedrooms to bathrooms ratio
+# -------------------------------------
+housing_data$bed_bath_ratio <- housing_data$bedrooms / housing_data$bathrooms
+
+p13 <- ggplot(housing_data, aes(x = bed_bath_ratio)) +
+  geom_histogram(fill = "purple", color = "black", bins = 30, alpha = 0.7) +
+  labs(title = "Distribution of Bedroom to Bathroom Ratio", 
+       x = "Bedrooms/Bathrooms Ratio", 
+       y = "Count") +
+  theme_minimal()
+
+print(p13)
+```
+
+
+```{r}
+# 8. Summary of Key Findings
+# --------------------------
+cat("\n----- KEY FINDINGS FROM EXPLORATORY DATA ANALYSIS -----\n")
+
+# Calculate and print key metrics
+average_price <- mean(housing_data$price)
+median_price <- median(housing_data$price)
+price_range <- max(housing_data$price) - min(housing_data$price)
+avg_price_per_sqft <- mean(housing_data$price_per_sqft)
+top_price_cities <- housing_data %>%
+  group_by(city) %>%
+  summarise(avg_price = mean(price),
+            count = n()) %>%
+  filter(count >= 20) %>%
+  arrange(desc(avg_price)) %>%
+  head(3)
+
+cat("Average home price: $", formatC(average_price, format="f", digits=2, big.mark=","), "\n")
+cat("Median home price: $", formatC(median_price, format="f", digits=2, big.mark=","), "\n")
+cat("Price range: $", formatC(price_range, format="f", digits=2, big.mark=","), "\n")
+cat("Average price per square foot: $", formatC(avg_price_per_sqft, format="f", digits=2), "\n")
+cat("Top 3 most expensive cities (min 20 properties):\n")
+print(top_price_cities)
+
+# Calculate strongest correlations with price
+price_correlations <- correlation_matrix[1, ]
+top_correlated <- sort(abs(price_correlations), decreasing = TRUE)[2:4]
+cat("Strongest correlations with price:\n")
+for(i in 1:3) {
+  var_name <- names(top_correlated)[i]
+  corr_value <- price_correlations[var_name]
+  cat(var_name, ": ", round(corr_value, 3), "\n")
+}
+
+# Print dataset quality assessment
+cat("\nDataset Quality Assessment:\n")
+cat("- Missing values: ", if(sum(missing_values) == 0) "None" else sum(missing_values), "\n")
+cat("- Detected outliers: ", nrow(price_outliers), "\n")
+cat("- Most common property type: ", 
+    names(which.max(table(housing_data$bedrooms))), 
+    "-bedroom homes (", 
+    round(max(table(housing_data$bedrooms))/nrow(housing_data)*100, 1), 
+    "%)\n", sep="")
+```
