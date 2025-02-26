@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 url <- "https://www.kaggle.com/api/v1/datasets/download/fratzcan/usa-house-prices"
 
 # Define the destination file path
-destfile <- "~/Downloads/usa-house-prices.zip"
+destfile <- "./usa-house-prices.zip"
 
 # Download the file
 download.file(url, destfile, mode = "wb")
