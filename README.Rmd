@@ -9,7 +9,32 @@ always_allow_html: true
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# Load dadta
+
+# Understanding the Data
+
+## Temporal Context
+* **When was the data acquired?**
+   * Based on our analysis, the data appears to be from 2014. Specifically, we observed that all the date entries in the sample begin with "2014-05-09" format. This suggests the dataset represents a snapshot of the housing market around May to July of 2014, rather than a time series spanning multiple years.
+
+## Geographic Scope
+* **Where was the data acquired?**
+   * The dataset covers housing properties in the state of Washington (WA), primarily in the Seattle metropolitan area and surrounding regions.
+
+## Data Collection Method
+* **How was the data acquired?**
+   * The dataset doesn't explicitly state its source, but based on the structured nature and comprehensive property details, it appears to be compiled from real estate transaction records or multiple listing service (MLS) data. It likely represents actual home sales rather than listings or estimates.
+
+## Dataset Attributes
+* **What are the attributes of this dataset?**
+   * The date of transaction, sale price, number of bedrooms and bathrooms, interior square footage, land square footage, number of floors, whether or not it is a waterfront property, quality of its view, the condition as a rating, square footage above ground level, square footage of basement, the year it was built, the year it was renovated, and its address including its street name, city, state, zip code, and country.
+
+## Data Types
+* **What type of data do these attributes contain?**
+   * **Nominal**: street name, city, state, zip code, and country
+   * **Ordinal**: view, condition and waterfront 
+   * **Numerical (interval)**: sale price, number of bedrooms and bathrooms, interior square footage, land square footage, number of floors, square footage above ground level, and square footage of basement
+   * **Numerical (ratio)**: the year it was built, the year it was renovated, and date of transaction
+
 
 ```{r}
 # Define the Kaggle dataset URL
@@ -219,3 +244,34 @@ cat("- Most common property type: ",
     round(max(table(housing_data$bedrooms))/nrow(housing_data)*100, 1), 
     "%)\n", sep="")
 ```
+
+# Expanding Your Investment Knowledge
+## Additional Data Source
+
+**[All-Transactions House Price Index for Washington-Arlington-Alexandria, DC-VA-MD-WV (MSAD)](https://fred.stlouisfed.org/series/ATNHPIUS47894Q)**
+
+While the USA Housing Dataset provides valuable information about property characteristics and prices, incorporating additional data sources can significantly enhance investment decision-making. This data set from FRED contains all-transaction house prices for the Washington, Arlington, and Alexandria area.
+
+## Benefits of This Complementary Dataset
+
+### Value Addition
+* Provides macroeconomic context
+* Offers forward-looking indicators
+* Establishes a scale for regional economic health
+
+### Complementary Analysis Opportunities
+* Enables time-series analysis
+* Facilitates market cycle identification
+* Highlights neighborhood growth potential
+* Optimizes investment timing
+* Supports comprehensive risk assessment
+
+## Target Audience
+
+These complementary datasets would be valuable for:
+* Real estate professionals
+* Economists
+* Investors
+* Policymakers
+
+All of whom seek to understand the relationship between individual property characteristics and broader housing market trends in specific regions.
