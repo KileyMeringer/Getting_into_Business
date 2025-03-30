@@ -16,7 +16,7 @@ README
 ## Data Collection Method
 
 - **How was the data acquired?**
-  - The dataset doesn’t explicitly state its source, but based on the structured nature and comprehensive property details, it appears to be compiled from real estate transaction records or multiple listing service (MLS) data. It likely represents actual home sales rather than listings or estimates.
+  - The dataset doesn’t explicitly state its source, but based on the structured nature and comprehensive property details, it appears to be compiled from real estate transaction records or multiple listing service (MLS) data. It likely represents actual home sales rather than listings or estimates. This was likely collected via an MLS (Multiple Listing Service) system.
 
 ## Dataset Attributes
 
@@ -30,6 +30,8 @@ README
   - **Ordinal**: view, condition and waterfront
   - **Numerical (interval)**: sale price, number of bedrooms and bathrooms, interior square footage, land square footage, number of floors, square footage above ground level, and square footage of basement
   - **Numerical (ratio)**: the year it was built, the year it was renovated, and date of transaction
+
+\##Explanation for choice of plot/graph Graph 1: I decided to use this graph to demonstrate the price per square foot by city because it shows how the data can be condensed and shows how there are some obvious outliers in the data set, such as Kent. Graph 2: The correlation matrix of housing features was chosen to display this data because it showed how different aspects of the house can have different impacts based on what other data is available and at work. This graph allows for more insight on various housing features than a mere line graph or bar chart would. Graph 3: A bar graph of the distribution of bedroom to bathroom ration was chosen to display this data since it was 2 very clear variables that are numerical and would be best addressed directly against one another. The bar graph is easy to read and clearly shows the relationship between the two aspects of the house.
 
 ``` r
 # Define the Kaggle dataset URL
@@ -50,48 +52,11 @@ cat("Download complete! File saved to:", destfile, "\n")
 ``` r
 # Load necessary libraries
 library(tidyverse)
-```
-
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-    ## ✔ purrr     1.0.4     
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-
-``` r
 library(naniar)      # For missing data visualization
 library(ggcorrplot)  # For correlation plots
 library(gridExtra)   # For arranging multiple plots
-```
-
-    ## 
-    ## Attaching package: 'gridExtra'
-    ## 
-    ## The following object is masked from 'package:dplyr':
-    ## 
-    ##     combine
-
-``` r
 library(scales)      # For formatting labels
-```
 
-    ## 
-    ## Attaching package: 'scales'
-    ## 
-    ## The following object is masked from 'package:purrr':
-    ## 
-    ##     discard
-    ## 
-    ## The following object is masked from 'package:readr':
-    ## 
-    ##     col_factor
-
-``` r
 # Read the dataset
 # Assuming the CSV file is in the working directory
 housing_data <- read.csv("USA Housing Dataset.csv")
@@ -432,9 +397,6 @@ p13 <- ggplot(housing_data, aes(x = bed_bath_ratio)) +
 
 print(p13)
 ```
-
-    ## Warning: Removed 2 rows containing non-finite outside the scale range
-    ## (`stat_bin()`).
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
