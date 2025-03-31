@@ -225,6 +225,46 @@ print(detailed_stats)
     ## 1               2014        979.3805                      0
 
 ``` r
+# Function to calculate mode
+get_mode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+# Example dataset (replace with actual dataset)
+house_data <- data.frame(
+  view = factor(c("Excellent", "Good", "Fair", "Good", "Excellent", "Fair", "Fair"),
+                levels = c("Fair", "Good", "Excellent"), ordered = TRUE),
+  condition = factor(c("New", "Good", "Fair", "Good", "New", "Fair", "Good"),
+                     levels = c("Fair", "Good", "New"), ordered = TRUE),
+  ordinal_status = factor(c("Yes", "No", "Yes", "Yes", "No", "Yes", "Yes"),
+                          levels = c("No", "Yes"), ordered = TRUE)
+)
+
+# Calculate mode for each ordinal attribute
+mode_view <- get_mode(house_data$view)
+mode_condition <- get_mode(house_data$condition)
+mode_ordinal_status <- get_mode(house_data$ordinal_status)
+
+# Print results
+cat("Mode of View:", mode_view, "\n")
+```
+
+    ## Mode of View: 1
+
+``` r
+cat("Mode of Condition:", mode_condition, "\n")
+```
+
+    ## Mode of Condition: 2
+
+``` r
+cat("Mode of Ordinal Status:", mode_ordinal_status, "\n")
+```
+
+    ## Mode of Ordinal Status: 2
+
+``` r
 # 3. Missing Value Analysis
 # -------------------------
 # Check for missing values
